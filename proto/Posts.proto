@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/koliader/tellmi-sdk/proto/pb";
+
+import "Entity.proto";
+
+service Posts {
+  //posts
+  rpc CreatePost(CreatePostReq) returns (Post) {}
+  rpc ListPosts(Empty) returns (ListPostsRes) {}
+  rpc GetPostByID(GetByIDReq) returns (PostRow) {}
+  rpc EditPost(EditPostReq) returns (Post) {}
+  rpc DeletePost(GetByIDReq) returns (Success) {}
+
+  //categories
+  rpc CreateCategory(CreateCategoryReq) returns (Category) {}
+  rpc ListCategories(Empty) returns (ListCategoriesRes) {}
+  rpc EditCategory(EditCategoryReq) returns (Success) {}
+
+  //comments
+  rpc CreateComment(CreateCommentReq) returns (Comment) {}
+  rpc ListCommentsByPost(GetByIDReq) returns (ListCommentsRes) {}
+  rpc EditComment(EditCommentReq) returns (Comment) {}
+  rpc DeleteComment(GetByIDReq) returns (Success) {}
+}
+
+message CreatePostReq {
+  string title = 1;
+  string description = 2;
+  int64 categoryId = 3;
+}
+
+message ListPostsRes {
+  repeated PostRow posts = 1;
+}
+
+message GetByIDReq {
+  int64 id = 1;
+}
+
+message EditPostReq {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  int64 categoryId = 4;
+}
+
+message ListCategoriesRes {
+  repeated Category categories = 1;
+}
+
+message CreateCategoryReq {
+  string name = 1;
+}
+
+message EditCategoryReq {
+  int64 id = 1;
+  string name = 2;
+}
+
+message CreateCommentReq {
+  string comment = 1;
+  int64 postId = 2;
+}
+
+message EditCommentReq {
+  int64 id = 1;
+  string comment = 2;
+}
+
+message ListCommentsRes {
+  repeated CommentRow comments = 1;
+}

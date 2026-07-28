@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/koliader/tellmi-sdk/proto/pb";
+
+import "Entity.proto";
+
+service Users {
+  rpc Register(RegisterReq) returns (AuthRes) {}
+  rpc Login(LoginReq) returns (AuthRes) {}
+  rpc Refresh(RefreshReq) returns (RefreshRes) {}
+  rpc GetUserById(IdReq) returns (UserRes) {}
+  rpc ListUsers(Empty) returns (ListUserRes) {}
+  rpc UpdateUser(UpdateUserReq) returns (UserRes) {}
+}
+
+message RegisterReq {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthRes {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RefreshReq {
+  string refresh_token = 1;
+}
+
+message RefreshRes {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message IdReq {
+  int64 id = 1;
+}
+
+message UserRes {
+  User user = 1;
+}
+
+message ListUserRes {
+  repeated User users = 1;
+}
+
+message UpdateUserReq {
+  int64 id = 1;
+  string username = 2;
+}
