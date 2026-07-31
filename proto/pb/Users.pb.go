@@ -407,8 +407,7 @@ func (x *ListUserRes) GetUsers() []*User {
 
 type UpdateUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -441,13 +440,6 @@ func (x *UpdateUserReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateUserReq.ProtoReflect.Descriptor instead.
 func (*UpdateUserReq) Descriptor() ([]byte, []int) {
 	return file_Users_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *UpdateUserReq) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
 }
 
 func (x *UpdateUserReq) GetUsername() string {
@@ -483,10 +475,9 @@ const file_Users_proto_rawDesc = "" +
 	"\aUserRes\x12\x1c\n" +
 	"\x04user\x18\x01 \x01(\v2\b.pb.UserR\x04user\"-\n" +
 	"\vListUserRes\x12\x1e\n" +
-	"\x05users\x18\x01 \x03(\v2\b.pb.UserR\x05users\";\n" +
-	"\rUpdateUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\busername\x18\x02 \x01(\tR\busername2\x8a\x02\n" +
+	"\x05users\x18\x01 \x03(\v2\b.pb.UserR\x05users\"+\n" +
+	"\rUpdateUserReq\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername2\x8a\x02\n" +
 	"\x05Users\x12*\n" +
 	"\bRegister\x12\x0f.pb.RegisterReq\x1a\v.pb.AuthRes\"\x00\x12$\n" +
 	"\x05Login\x12\f.pb.LoginReq\x1a\v.pb.AuthRes\"\x00\x12+\n" +

@@ -92,7 +92,6 @@ func (c *Client) UpdateUser(ctx context.Context, req model.UpdateUserReq, header
 	}
 
 	res, err := usersGrpcServiceClient.UpdateUser(authCtx, &pb.UpdateUserReq{
-		Id:       req.ID,
 		Username: req.Username,
 	})
 	if err != nil {

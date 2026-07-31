@@ -52,6 +52,5 @@ message ListUserRes {
 }
 
 message UpdateUserReq {
-  string id = 1;
-  string username = 2;
+  string username = 1;
 }
