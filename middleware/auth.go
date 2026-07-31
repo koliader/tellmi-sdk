@@ -28,7 +28,7 @@ func (m *GrpcMiddleware) AuthorizeUser(ctx context.Context) (*token.Payload, err
 		return nil, fmt.Errorf("invalid auth header format")
 	}
 	t := fields[1]
-	payload, err := m.tokenMaker.VerifyToken(t)
+	payload, err := 	m.tokenMaker.VerifyToken(t)
 	if err != nil {
 		return nil, err
 	}

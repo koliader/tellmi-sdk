@@ -23,7 +23,7 @@ const (
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
 	IsBlocked     bool                   `protobuf:"varint,4,opt,name=isBlocked,proto3" json:"isBlocked,omitempty"`
@@ -61,11 +61,11 @@ func (*User) Descriptor() ([]byte, []int) {
 	return file_Entity_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *User) GetId() int64 {
+func (x *User) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *User) GetUsername() string {
@@ -94,7 +94,7 @@ type Post struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	UserId        int64                  `protobuf:"varint,4,opt,name=userId,proto3" json:"userId,omitempty"`
+	UserId        string                 `protobuf:"bytes,4,opt,name=userId,proto3" json:"userId,omitempty"`
 	CategoryId    int64                  `protobuf:"varint,5,opt,name=categoryId,proto3" json:"categoryId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -151,11 +151,11 @@ func (x *Post) GetDescription() string {
 	return ""
 }
 
-func (x *Post) GetUserId() int64 {
+func (x *Post) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
-	return 0
+	return ""
 }
 
 func (x *Post) GetCategoryId() int64 {
@@ -246,7 +246,7 @@ type Comment struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Comment       string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`
 	PostId        int64                  `protobuf:"varint,3,opt,name=postId,proto3" json:"postId,omitempty"`
-	UserId        int64                  `protobuf:"varint,4,opt,name=userId,proto3" json:"userId,omitempty"`
+	UserId        string                 `protobuf:"bytes,4,opt,name=userId,proto3" json:"userId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -302,11 +302,11 @@ func (x *Comment) GetPostId() int64 {
 	return 0
 }
 
-func (x *Comment) GetUserId() int64 {
+func (x *Comment) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
-	return 0
+	return ""
 }
 
 type CommentRow struct {
@@ -523,7 +523,7 @@ const file_Entity_proto_rawDesc = "" +
 	"\n" +
 	"\fEntity.proto\x12\x02pb\"d\n" +
 	"\x04User\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x12\n" +
 	"\x04role\x18\x03 \x01(\tR\x04role\x12\x1c\n" +
 	"\tisBlocked\x18\x04 \x01(\bR\tisBlocked\"\x86\x01\n" +
@@ -531,7 +531,7 @@ const file_Entity_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x16\n" +
-	"\x06userId\x18\x04 \x01(\x03R\x06userId\x12\x1e\n" +
+	"\x06userId\x18\x04 \x01(\tR\x06userId\x12\x1e\n" +
 	"\n" +
 	"categoryId\x18\x05 \x01(\x03R\n" +
 	"categoryId\"\x99\x01\n" +
@@ -545,7 +545,7 @@ const file_Entity_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
 	"\acomment\x18\x02 \x01(\tR\acomment\x12\x16\n" +
 	"\x06postId\x18\x03 \x01(\x03R\x06postId\x12\x16\n" +
-	"\x06userId\x18\x04 \x01(\x03R\x06userId\"\x8d\x01\n" +
+	"\x06userId\x18\x04 \x01(\tR\x06userId\"\x8d\x01\n" +
 	"\n" +
 	"CommentRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +

@@ -275,7 +275,7 @@ func (x *RefreshRes) GetRefreshToken() string {
 
 type IdReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -310,11 +310,11 @@ func (*IdReq) Descriptor() ([]byte, []int) {
 	return file_Users_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *IdReq) GetId() int64 {
+func (x *IdReq) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 type UserRes struct {
@@ -407,7 +407,7 @@ func (x *ListUserRes) GetUsers() []*User {
 
 type UpdateUserReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -443,11 +443,11 @@ func (*UpdateUserReq) Descriptor() ([]byte, []int) {
 	return file_Users_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *UpdateUserReq) GetId() int64 {
+func (x *UpdateUserReq) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *UpdateUserReq) GetUsername() string {
@@ -479,13 +479,13 @@ const file_Users_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"\x17\n" +
 	"\x05IdReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"'\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"'\n" +
 	"\aUserRes\x12\x1c\n" +
 	"\x04user\x18\x01 \x01(\v2\b.pb.UserR\x04user\"-\n" +
 	"\vListUserRes\x12\x1e\n" +
 	"\x05users\x18\x01 \x03(\v2\b.pb.UserR\x05users\";\n" +
 	"\rUpdateUserReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername2\x8a\x02\n" +
 	"\x05Users\x12*\n" +
 	"\bRegister\x12\x0f.pb.RegisterReq\x1a\v.pb.AuthRes\"\x00\x12$\n" +

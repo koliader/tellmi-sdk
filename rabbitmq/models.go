@@ -1,12 +1,15 @@
 package rabbitmq
 
+import "github.com/google/uuid"
+
 type UserUpdated struct {
-	Username    string `json:"username"`
-	NewUsername string `json:"newUsername"`
+	ID          uuid.UUID `json:"id"`
+	NewUsername string    `json:"newUsername"`
 }
 
 type UserCreated struct {
-	Username string `json:"username"`
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
 }
 
 type MessageSender interface {

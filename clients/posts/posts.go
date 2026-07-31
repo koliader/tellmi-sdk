@@ -2,6 +2,7 @@ package posts_client
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/koliader/tellmi-sdk/errors/grpc"
 	"github.com/koliader/tellmi-sdk/middleware"
@@ -46,7 +47,12 @@ func (c *Client) GetPostByID(ctx context.Context, req *model.IDReq) (*pb.PostRow
 		return nil, nil, err
 	}
 
-	res, err := postsGrpcServiceClient.GetPostByID(ctx, &pb.GetByIDReq{Id: req.ID})
+	id, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		return nil, nil, errgrpc.ErrorResponse(err)
+	}
+
+	res, err := postsGrpcServiceClient.GetPostByID(ctx, &pb.GetByIDReq{Id: id})
 	if err != nil {
 		return nil, errgrpc.GetErrorCode(err), errgrpc.ErrorResponse(err)
 	}
@@ -79,7 +85,12 @@ func (c *Client) DeletePost(ctx context.Context, req *model.IDReq, headers model
 		return nil, nil, err
 	}
 
-	res, err := postsGrpcServiceClient.DeletePost(authCtx, &pb.GetByIDReq{Id: req.ID})
+	id, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := postsGrpcServiceClient.DeletePost(authCtx, &pb.GetByIDReq{Id: id})
 	if err != nil {
 		return nil, errgrpc.GetErrorCode(err), errgrpc.ErrorResponse(err)
 	}
@@ -157,7 +168,12 @@ func (c *Client) ListCommentsByPost(ctx context.Context, req *model.IDReq) (*pb.
 		return nil, nil, err
 	}
 
-	res, err := postsGrpcServiceClient.ListCommentsByPost(ctx, &pb.GetByIDReq{Id: req.ID})
+	id, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := postsGrpcServiceClient.ListCommentsByPost(ctx, &pb.GetByIDReq{Id: id})
 	if err != nil {
 		return nil, errgrpc.GetErrorCode(err), errgrpc.ErrorResponse(err)
 	}
@@ -188,7 +204,12 @@ func (c *Client) DeleteComment(ctx context.Context, req *model.IDReq, headers mo
 		return nil, nil, err
 	}
 
-	res, err := postsGrpcServiceClient.DeleteComment(authCtx, &pb.GetByIDReq{Id: req.ID})
+	id, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	res, err := postsGrpcServiceClient.DeleteComment(authCtx, &pb.GetByIDReq{Id: id})
 	if err != nil {
 		return nil, errgrpc.GetErrorCode(err), errgrpc.ErrorResponse(err)
 	}

@@ -4,18 +4,19 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 )
 
 type Payload struct {
-	Username  string    `json:"username"`
+	ID        uuid.UUID `json:"id"`
 	Role      string    `json:"role"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }
 
-func NewPayload(username string, role string, duration time.Duration) (*Payload, error) {
+func NewPayload(id uuid.UUID, role string, duration time.Duration) (*Payload, error) {
 	payload := &Payload{
-		Username:  username,
+		ID:        id,
 		Role:      role,
 		IssuedAt:  time.Now(),
 		ExpiredAt: time.Now().Add(duration),

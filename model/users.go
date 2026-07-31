@@ -11,6 +11,6 @@ type LoginReq struct {
 }
 
 type UpdateUserReq struct {
-	ID       int64  `json:"id"       binding:"required"`
+	ID       string `json:"id"       binding:"required"`
 	Username string `json:"username" binding:"required,min=3"`
 }

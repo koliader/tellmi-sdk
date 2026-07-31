@@ -5,7 +5,7 @@ package pb;
 option go_package = "github.com/koliader/tellmi-sdk/proto/pb";
 
 message User {
-  int64 id = 1;
+  string id = 1;
   string username = 2;
   string role = 3;
   bool isBlocked = 4;
@@ -15,7 +15,7 @@ message Post {
   int64 id = 1;
   string title = 2;
   string description = 3;
-  int64 userId = 4;
+  string userId = 4;
   int64 categoryId = 5;
 }
 
@@ -31,7 +31,7 @@ message Comment {
   int64 id = 1;
   string comment = 2;
   int64 postId = 3;
-  int64 userId = 4;
+  string userId = 4;
 }
 
 message CommentRow {

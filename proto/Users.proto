@@ -40,7 +40,7 @@ message RefreshRes {
 }
 
 message IdReq {
-  int64 id = 1;
+  string id = 1;
 }
 
 message UserRes {
@@ -52,6 +52,6 @@ message ListUserRes {
 }
 
 message UpdateUserReq {
-  int64 id = 1;
+  string id = 1;
   string username = 2;
 }
