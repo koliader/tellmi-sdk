@@ -12,6 +12,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var UserUpdatedQueue = "updateUser"
@@ -278,13 +282,17 @@ func (c *Client) SendMessage(ctx context.Context, queueName string, message []by
 	if err := c.DeclareQueue(queueName); err != nil {
 		return err
 	}
-	return c.publishConfirmed(ctx, queueName, amqp091.Publishing{
+	msg := amqp091.Publishing{
 		ContentType:  "application/json",
 		DeliveryMode: amqp091.Persistent,
 		MessageId:    uuid.New().String(),
 		Timestamp:    time.Now(),
 		Body:         message,
-	})
+	}
+	// propagate the trace context to consumers so the async flow stays in one trace
+	msg.Headers = make(amqp091.Table)
+	otel.GetTextMapPropagator().Inject(ctx, headersCarrier(msg.Headers))
+	return c.publishConfirmed(ctx, queueName, msg)
 }
 
 func (c *Client) publishConfirmed(ctx context.Context, queueName string, msg amqp091.Publishing) error {
@@ -318,7 +326,7 @@ func (c *Client) publishConfirmed(ctx context.Context, queueName string, msg amq
 	}
 }
 
-func (c *Client) Consume(ctx context.Context, queueName string, handler func([]byte) error) error {
+func (c *Client) Consume(ctx context.Context, queueName string, handler func(context.Context, []byte) error) error {
 	if c == nil {
 		return fmt.Errorf("rabbitmq client is nil")
 	}
@@ -414,8 +422,20 @@ func (c *Client) readyConnection(ctx context.Context) (*amqp091.Connection, erro
 	}
 }
 
-func (c *Client) handleDelivery(ctx context.Context, delivery amqp091.Delivery, handler func([]byte) error) {
-	err := handler(delivery.Body)
+func (c *Client) handleDelivery(ctx context.Context, delivery amqp091.Delivery, handler func(context.Context, []byte) error) {
+	// continue the trace started by the producer into this consumer
+	msgCtx := otel.GetTextMapPropagator().Extract(ctx, headersCarrier(delivery.Headers))
+	_, span := otel.Tracer("tellmi-sdk/rabbitmq").Start(msgCtx, "rabbitmq.consume "+delivery.RoutingKey, trace.WithSpanKind(trace.SpanKindConsumer))
+	defer span.End()
+	if sc := trace.SpanContextFromContext(msgCtx); sc.IsValid() {
+		span.SetAttributes(
+			attribute.String("messaging.message_id", delivery.MessageId),
+			attribute.String("messaging.rabbitmq.routing_key", delivery.RoutingKey),
+		)
+	}
+	msgCtx = trace.ContextWithSpan(msgCtx, span)
+
+	err := handler(msgCtx, delivery.Body)
 	switch {
 	case err == nil:
 		if ackErr := delivery.Ack(false); ackErr != nil {
@@ -503,6 +523,35 @@ func retryCount(headers amqp091.Table) int {
 func retryQueueName(queue string, delay time.Duration) string {
 	return fmt.Sprintf("%s%s.%s", queue, retrySuffix, formatDuration(delay))
 }
+
+// headersCarrier adapts an amqp091.Table to the OTel propagation.TextMapCarrier
+// interface so W3C trace context flows through RabbitMQ message headers.
+type headersCarrier amqp091.Table
+
+func (c headersCarrier) Get(key string) string {
+	v, ok := amqp091.Table(c)[key]
+	if !ok {
+		return ""
+	}
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return ""
+}
+
+func (c headersCarrier) Set(key string, value string) {
+	amqp091.Table(c)[key] = value
+}
+
+func (c headersCarrier) Keys() []string {
+	out := make([]string, 0, len(c))
+	for k := range c {
+		out = append(out, k)
+	}
+	return out
+}
+
+var _ propagation.TextMapCarrier = headersCarrier(nil)
 
 func formatDuration(d time.Duration) string {
 	switch {

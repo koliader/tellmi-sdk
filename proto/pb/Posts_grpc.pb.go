@@ -39,7 +39,7 @@ const (
 type PostsClient interface {
 	// posts
 	CreatePost(ctx context.Context, in *CreatePostReq, opts ...grpc.CallOption) (*Post, error)
-	ListPosts(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListPostsRes, error)
+	ListPosts(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ListPostsRes, error)
 	GetPostByID(ctx context.Context, in *GetByIDReq, opts ...grpc.CallOption) (*PostRow, error)
 	EditPost(ctx context.Context, in *EditPostReq, opts ...grpc.CallOption) (*Post, error)
 	DeletePost(ctx context.Context, in *GetByIDReq, opts ...grpc.CallOption) (*Success, error)
@@ -72,7 +72,7 @@ func (c *postsClient) CreatePost(ctx context.Context, in *CreatePostReq, opts ..
 	return out, nil
 }
 
-func (c *postsClient) ListPosts(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ListPostsRes, error) {
+func (c *postsClient) ListPosts(ctx context.Context, in *PaginationReq, opts ...grpc.CallOption) (*ListPostsRes, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListPostsRes)
 	err := c.cc.Invoke(ctx, Posts_ListPosts_FullMethodName, in, out, cOpts...)
@@ -188,7 +188,7 @@ func (c *postsClient) DeleteComment(ctx context.Context, in *GetByIDReq, opts ..
 type PostsServer interface {
 	// posts
 	CreatePost(context.Context, *CreatePostReq) (*Post, error)
-	ListPosts(context.Context, *Empty) (*ListPostsRes, error)
+	ListPosts(context.Context, *PaginationReq) (*ListPostsRes, error)
 	GetPostByID(context.Context, *GetByIDReq) (*PostRow, error)
 	EditPost(context.Context, *EditPostReq) (*Post, error)
 	DeletePost(context.Context, *GetByIDReq) (*Success, error)
@@ -214,7 +214,7 @@ type UnimplementedPostsServer struct{}
 func (UnimplementedPostsServer) CreatePost(context.Context, *CreatePostReq) (*Post, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePost not implemented")
 }
-func (UnimplementedPostsServer) ListPosts(context.Context, *Empty) (*ListPostsRes, error) {
+func (UnimplementedPostsServer) ListPosts(context.Context, *PaginationReq) (*ListPostsRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPosts not implemented")
 }
 func (UnimplementedPostsServer) GetPostByID(context.Context, *GetByIDReq) (*PostRow, error) {
@@ -287,7 +287,7 @@ func _Posts_CreatePost_Handler(srv interface{}, ctx context.Context, dec func(in
 }
 
 func _Posts_ListPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(PaginationReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -299,7 +299,7 @@ func _Posts_ListPosts_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: Posts_ListPosts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostsServer).ListPosts(ctx, req.(*Empty))
+		return srv.(PostsServer).ListPosts(ctx, req.(*PaginationReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

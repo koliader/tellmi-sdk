@@ -9,7 +9,7 @@ import "Entity.proto";
 service Posts {
   //posts
   rpc CreatePost(CreatePostReq) returns (Post) {}
-  rpc ListPosts(Empty) returns (ListPostsRes) {}
+  rpc ListPosts(PaginationReq) returns (ListPostsRes) {}
   rpc GetPostByID(GetByIDReq) returns (PostRow) {}
   rpc EditPost(EditPostReq) returns (Post) {}
   rpc DeletePost(GetByIDReq) returns (Success) {}

@@ -564,11 +564,11 @@ const file_Posts_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
 	"\acomment\x18\x02 \x01(\tR\acomment\"=\n" +
 	"\x0fListCommentsRes\x12*\n" +
-	"\bcomments\x18\x01 \x03(\v2\x0e.pb.CommentRowR\bcomments2\xdc\x04\n" +
+	"\bcomments\x18\x01 \x03(\v2\x0e.pb.CommentRowR\bcomments2\xe4\x04\n" +
 	"\x05Posts\x12+\n" +
 	"\n" +
-	"CreatePost\x12\x11.pb.CreatePostReq\x1a\b.pb.Post\"\x00\x12*\n" +
-	"\tListPosts\x12\t.pb.Empty\x1a\x10.pb.ListPostsRes\"\x00\x12,\n" +
+	"CreatePost\x12\x11.pb.CreatePostReq\x1a\b.pb.Post\"\x00\x122\n" +
+	"\tListPosts\x12\x11.pb.PaginationReq\x1a\x10.pb.ListPostsRes\"\x00\x12,\n" +
 	"\vGetPostByID\x12\x0e.pb.GetByIDReq\x1a\v.pb.PostRow\"\x00\x12'\n" +
 	"\bEditPost\x12\x0f.pb.EditPostReq\x1a\b.pb.Post\"\x00\x12+\n" +
 	"\n" +
@@ -608,39 +608,40 @@ var file_Posts_proto_goTypes = []any{
 	(*PostRow)(nil),           // 10: pb.PostRow
 	(*Category)(nil),          // 11: pb.Category
 	(*CommentRow)(nil),        // 12: pb.CommentRow
-	(*Empty)(nil),             // 13: pb.Empty
-	(*Post)(nil),              // 14: pb.Post
-	(*Success)(nil),           // 15: pb.Success
-	(*Comment)(nil),           // 16: pb.Comment
+	(*PaginationReq)(nil),     // 13: pb.PaginationReq
+	(*Empty)(nil),             // 14: pb.Empty
+	(*Post)(nil),              // 15: pb.Post
+	(*Success)(nil),           // 16: pb.Success
+	(*Comment)(nil),           // 17: pb.Comment
 }
 var file_Posts_proto_depIdxs = []int32{
 	10, // 0: pb.ListPostsRes.posts:type_name -> pb.PostRow
 	11, // 1: pb.ListCategoriesRes.categories:type_name -> pb.Category
 	12, // 2: pb.ListCommentsRes.comments:type_name -> pb.CommentRow
 	0,  // 3: pb.Posts.CreatePost:input_type -> pb.CreatePostReq
-	13, // 4: pb.Posts.ListPosts:input_type -> pb.Empty
+	13, // 4: pb.Posts.ListPosts:input_type -> pb.PaginationReq
 	2,  // 5: pb.Posts.GetPostByID:input_type -> pb.GetByIDReq
 	3,  // 6: pb.Posts.EditPost:input_type -> pb.EditPostReq
 	2,  // 7: pb.Posts.DeletePost:input_type -> pb.GetByIDReq
 	5,  // 8: pb.Posts.CreateCategory:input_type -> pb.CreateCategoryReq
-	13, // 9: pb.Posts.ListCategories:input_type -> pb.Empty
+	14, // 9: pb.Posts.ListCategories:input_type -> pb.Empty
 	6,  // 10: pb.Posts.EditCategory:input_type -> pb.EditCategoryReq
 	7,  // 11: pb.Posts.CreateComment:input_type -> pb.CreateCommentReq
 	2,  // 12: pb.Posts.ListCommentsByPost:input_type -> pb.GetByIDReq
 	8,  // 13: pb.Posts.EditComment:input_type -> pb.EditCommentReq
 	2,  // 14: pb.Posts.DeleteComment:input_type -> pb.GetByIDReq
-	14, // 15: pb.Posts.CreatePost:output_type -> pb.Post
+	15, // 15: pb.Posts.CreatePost:output_type -> pb.Post
 	1,  // 16: pb.Posts.ListPosts:output_type -> pb.ListPostsRes
 	10, // 17: pb.Posts.GetPostByID:output_type -> pb.PostRow
-	14, // 18: pb.Posts.EditPost:output_type -> pb.Post
-	15, // 19: pb.Posts.DeletePost:output_type -> pb.Success
+	15, // 18: pb.Posts.EditPost:output_type -> pb.Post
+	16, // 19: pb.Posts.DeletePost:output_type -> pb.Success
 	11, // 20: pb.Posts.CreateCategory:output_type -> pb.Category
 	4,  // 21: pb.Posts.ListCategories:output_type -> pb.ListCategoriesRes
-	15, // 22: pb.Posts.EditCategory:output_type -> pb.Success
-	16, // 23: pb.Posts.CreateComment:output_type -> pb.Comment
+	16, // 22: pb.Posts.EditCategory:output_type -> pb.Success
+	17, // 23: pb.Posts.CreateComment:output_type -> pb.Comment
 	9,  // 24: pb.Posts.ListCommentsByPost:output_type -> pb.ListCommentsRes
-	16, // 25: pb.Posts.EditComment:output_type -> pb.Comment
-	15, // 26: pb.Posts.DeleteComment:output_type -> pb.Success
+	17, // 25: pb.Posts.EditComment:output_type -> pb.Comment
+	16, // 26: pb.Posts.DeleteComment:output_type -> pb.Success
 	15, // [15:27] is the sub-list for method output_type
 	3,  // [3:15] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name

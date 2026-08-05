@@ -9,10 +9,17 @@ import (
 // Check reports whether a dependency is healthy.
 type Check func(ctx context.Context) error
 
+// Handler is an additional route mounted on the health server (e.g. /metrics).
+type Handler struct {
+	Path    string
+	Handler http.Handler
+}
+
 type Server struct {
-	addr    string
-	checks  []Check
-	timeout time.Duration
+	addr     string
+	checks   []Check
+	timeout  time.Duration
+	handlers []Handler
 }
 
 func NewServer(addr string, checks ...Check) *Server {
@@ -23,9 +30,18 @@ func NewServer(addr string, checks ...Check) *Server {
 	}
 }
 
+// WithHandler mounts an extra route on the same mux (e.g. /metrics).
+func (s *Server) WithHandler(path string, h http.Handler) *Server {
+	s.handlers = append(s.handlers, Handler{Path: path, Handler: h})
+	return s
+}
+
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", s.handleHealthz)
+	for _, h := range s.handlers {
+		mux.Handle(h.Path, h.Handler)
+	}
 
 	srv := &http.Server{
 		Addr:              s.addr,

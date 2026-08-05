@@ -52,3 +52,8 @@ message Empty {}
 message Success {
   string message = 1;
 }
+
+message PaginationReq {
+  int64 limit = 1;
+  int64 offset = 2;
+}

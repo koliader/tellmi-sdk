@@ -517,6 +517,58 @@ func (x *Success) GetMessage() string {
 	return ""
 }
 
+type PaginationReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PaginationReq) Reset() {
+	*x = PaginationReq{}
+	mi := &file_Entity_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PaginationReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PaginationReq) ProtoMessage() {}
+
+func (x *PaginationReq) ProtoReflect() protoreflect.Message {
+	mi := &file_Entity_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PaginationReq.ProtoReflect.Descriptor instead.
+func (*PaginationReq) Descriptor() ([]byte, []int) {
+	return file_Entity_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *PaginationReq) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *PaginationReq) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
 var File_Entity_proto protoreflect.FileDescriptor
 
 const file_Entity_proto_rawDesc = "" +
@@ -558,7 +610,10 @@ const file_Entity_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\a\n" +
 	"\x05Empty\"#\n" +
 	"\aSuccess\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessageB)Z'github.com/koliader/tellmi-sdk/proto/pbb\x06proto3"
+	"\amessage\x18\x01 \x01(\tR\amessage\"=\n" +
+	"\rPaginationReq\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x03R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x03R\x06offsetB)Z'github.com/koliader/tellmi-sdk/proto/pbb\x06proto3"
 
 var (
 	file_Entity_proto_rawDescOnce sync.Once
@@ -572,16 +627,17 @@ func file_Entity_proto_rawDescGZIP() []byte {
 	return file_Entity_proto_rawDescData
 }
 
-var file_Entity_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_Entity_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_Entity_proto_goTypes = []any{
-	(*User)(nil),       // 0: pb.User
-	(*Post)(nil),       // 1: pb.Post
-	(*PostRow)(nil),    // 2: pb.PostRow
-	(*Comment)(nil),    // 3: pb.Comment
-	(*CommentRow)(nil), // 4: pb.CommentRow
-	(*Category)(nil),   // 5: pb.Category
-	(*Empty)(nil),      // 6: pb.Empty
-	(*Success)(nil),    // 7: pb.Success
+	(*User)(nil),          // 0: pb.User
+	(*Post)(nil),          // 1: pb.Post
+	(*PostRow)(nil),       // 2: pb.PostRow
+	(*Comment)(nil),       // 3: pb.Comment
+	(*CommentRow)(nil),    // 4: pb.CommentRow
+	(*Category)(nil),      // 5: pb.Category
+	(*Empty)(nil),         // 6: pb.Empty
+	(*Success)(nil),       // 7: pb.Success
+	(*PaginationReq)(nil), // 8: pb.PaginationReq
 }
 var file_Entity_proto_depIdxs = []int32{
 	0, // 0: pb.PostRow.user:type_name -> pb.User
@@ -606,7 +662,7 @@ func file_Entity_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_Entity_proto_rawDesc), len(file_Entity_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
