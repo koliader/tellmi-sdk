@@ -6,8 +6,8 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
+	github.com/rabbitmq/amqp091-go v1.13.0
 	github.com/spf13/viper v1.21.0
-	github.com/streadway/amqp v1.1.0
 	google.golang.org/grpc v1.82.1
 	google.golang.org/protobuf v1.36.11
 )

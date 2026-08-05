@@ -1,6 +1,10 @@
 package rabbitmq
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type UserUpdated struct {
 	ID          uuid.UUID `json:"id"`
@@ -13,5 +17,5 @@ type UserCreated struct {
 }
 
 type MessageSender interface {
-	SendMessage(queueName string, message []byte) error
+	SendMessage(ctx context.Context, queueName string, message []byte) error
 }
