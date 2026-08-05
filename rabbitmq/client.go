@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"maps"
 	"sync"
 	"sync/atomic"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/rs/zerolog/log"
 )
 
 var UserUpdatedQueue = "updateUser"
@@ -208,7 +208,8 @@ func (c *Client) reconnectLoop() {
 		select {
 		case <-c.done:
 			return
-		case <-closed:
+		case err := <-closed:
+			log.Warn().Err(err).Msg("rabbitmq: connection lost, attempting reconnect")
 		}
 
 		backoff := reconnectBackoffInitial
@@ -221,6 +222,7 @@ func (c *Client) reconnectLoop() {
 				c.conn = nil
 				c.ch = nil
 				c.mu.Unlock()
+				log.Warn().Err(err).Dur("retry_in", backoff).Msg("rabbitmq: reconnect attempt failed")
 				select {
 				case <-c.done:
 					return
@@ -231,6 +233,7 @@ func (c *Client) reconnectLoop() {
 				}
 				continue
 			}
+			log.Info().Msg("rabbitmq: reconnected")
 			break
 		}
 	}
@@ -330,12 +333,25 @@ func (c *Client) Consume(ctx context.Context, queueName string, handler func([]b
 		default:
 		}
 
-		ch, err := c.readyChannel(ctx) // waiting for live channel
+		conn, err := c.readyConnection(ctx) // waiting for live connection
 		if err != nil {
 			return err
 		}
 
+		// each consumer gets its own channel; sharing one channel across
+		// consumers races Qos/Consume and triggers 503 "unexpected command"
+		ch, err := conn.Channel()
+		if err != nil {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(200 * time.Millisecond):
+			}
+			continue
+		}
+
 		if err := ch.Qos(1, 0, false); err != nil { // 1 message on handle
+			ch.Close()
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -346,6 +362,7 @@ func (c *Client) Consume(ctx context.Context, queueName string, handler func([]b
 
 		msgs, err := ch.Consume(queueName, "", false, false, false, false, nil)
 		if err != nil {
+			ch.Close()
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -357,9 +374,11 @@ func (c *Client) Consume(ctx context.Context, queueName string, handler func([]b
 		for {
 			select {
 			case <-ctx.Done():
+				ch.Close()
 				return ctx.Err()
 			case delivery, ok := <-msgs:
 				if !ok {
+					ch.Close()
 					goto resubscribe
 				}
 				c.handleDelivery(ctx, delivery, handler)
@@ -375,24 +394,22 @@ func (c *Client) Consume(ctx context.Context, queueName string, handler func([]b
 	}
 }
 
-func (c *Client) readyChannel(ctx context.Context) (*amqp091.Channel, error) {
+func (c *Client) readyConnection(ctx context.Context) (*amqp091.Connection, error) {
+	ticker := time.NewTicker(200 * time.Millisecond)
+	defer ticker.Stop()
+
 	for {
 		c.mu.Lock()
-		ch := c.ch
+		conn := c.conn
 		c.mu.Unlock()
-		if ch != nil {
-			return ch, nil
+		if conn != nil && !conn.IsClosed() {
+			return conn, nil
 		}
-		ticker := time.NewTicker(200 * time.Millisecond)
-		defer ticker.Stop()
 
-		for {
-			select {
-			case <-ctx.Done():
-				return nil, ctx.Err()
-
-			case <-ticker.C:
-			}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-ticker.C:
 		}
 	}
 }
@@ -402,12 +419,14 @@ func (c *Client) handleDelivery(ctx context.Context, delivery amqp091.Delivery, 
 	switch {
 	case err == nil:
 		if ackErr := delivery.Ack(false); ackErr != nil {
-			log.Printf("rabbitmq: failed to ack message %s on %s: %v", delivery.MessageId, delivery.RoutingKey, ackErr)
+			log.Error().Err(ackErr).Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+				Msg("rabbitmq: failed to ack message")
 		}
 	case errors.Is(err, ErrReject):
 		// permanent failure: reject without requeue, broker routes it to the DLQ
 		if nackErr := delivery.Nack(false, false); nackErr != nil {
-			log.Printf("rabbitmq: failed to reject message %s on %s: %v", delivery.MessageId, delivery.RoutingKey, nackErr)
+			log.Error().Err(nackErr).Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+				Msg("rabbitmq: failed to reject message")
 		}
 	default:
 		c.retryOrDeadLetter(ctx, delivery)
@@ -417,9 +436,11 @@ func (c *Client) handleDelivery(ctx context.Context, delivery amqp091.Delivery, 
 func (c *Client) retryOrDeadLetter(ctx context.Context, delivery amqp091.Delivery) {
 	attempt := retryCount(delivery.Headers)
 	if attempt >= len(c.retryDelays) {
-		log.Printf("rabbitmq: message %s on %s exceeded %d retry tiers, dead-lettering", delivery.MessageId, delivery.RoutingKey, len(c.retryDelays))
+		log.Warn().Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+			Int("retries", attempt).Msg("rabbitmq: message exceeded retry tiers, dead-lettering")
 		if nackErr := delivery.Nack(false, false); nackErr != nil {
-			log.Printf("rabbitmq: failed to dead-letter message %s on %s: %v", delivery.MessageId, delivery.RoutingKey, nackErr)
+			log.Error().Err(nackErr).Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+				Msg("rabbitmq: failed to dead-letter message")
 		}
 		return
 	}
@@ -435,16 +456,19 @@ func (c *Client) retryOrDeadLetter(ctx context.Context, delivery amqp091.Deliver
 	}); err != nil {
 		// Publish failed: do not ack the original. Requeue it so the broker
 		// redelivers it later instead of stalling this consumer (QoS 1).
-		log.Printf("rabbitmq: failed to publish message %s to retry queue %s: %v", delivery.MessageId, retryQueue, err)
+		log.Error().Err(err).Str("message_id", delivery.MessageId).Str("queue", retryQueue).
+			Msg("rabbitmq: failed to publish message to retry queue")
 		if nackErr := delivery.Nack(false, true); nackErr != nil {
-			log.Printf("rabbitmq: failed to requeue message %s on %s: %v", delivery.MessageId, delivery.RoutingKey, nackErr)
+			log.Error().Err(nackErr).Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+				Msg("rabbitmq: failed to requeue message")
 		}
 		return
 	}
 
 	// retry copy is safely in the retry queue: only now ack the original
 	if ackErr := delivery.Ack(false); ackErr != nil {
-		log.Printf("rabbitmq: failed to ack message %s on %s after retry: %v", delivery.MessageId, delivery.RoutingKey, ackErr)
+		log.Error().Err(ackErr).Str("message_id", delivery.MessageId).Str("queue", delivery.RoutingKey).
+			Msg("rabbitmq: failed to ack message after retry")
 	}
 }
 
