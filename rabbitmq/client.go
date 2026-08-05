@@ -25,9 +25,6 @@ const (
 	retryCountHeader = "x-retry-count"
 )
 
-// ErrReject tells Consume to drop the message without requeueing it. With
-// dead-lettering configured the broker routes rejected messages to the DLQ.
-// Return it from a consumer handler for permanent failures (e.g. bad payload).
 var ErrReject = errors.New("reject rabbitmq message")
 
 const (
@@ -36,9 +33,6 @@ const (
 	reconnectBackoffMax     = 10 * time.Second
 )
 
-// defaultRetryDelays is the default tiered retry schedule. Each transiently
-// failing message first travels to userCreated.retry.5s, then .30s, then .2m,
-// then .10m before it is dead-lettered to the DLQ.
 var defaultRetryDelays = []time.Duration{
 	5 * time.Second,
 	30 * time.Second,
@@ -46,8 +40,6 @@ var defaultRetryDelays = []time.Duration{
 	10 * time.Minute,
 }
 
-// queueSpec remembers how a queue was declared so reconnects can rebuild the
-// exact same topology (same arguments, otherwise the broker rejects with 406).
 type queueSpec struct {
 	kind   string // "main" or "retry"
 	ttl    time.Duration
@@ -118,8 +110,6 @@ func NewClient(url string, opts ...Option) (*Client, error) {
 	return c, nil
 }
 
-// connect dials, creates a channel, re-declares known queues and enables
-// publisher confirms. Caller must NOT hold c.mu.
 func (c *Client) connect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -164,10 +154,6 @@ func (c *Client) connect() error {
 	return nil
 }
 
-// declareQueueWithDlq declares the queue with an x-dead-letter-exchange plus a
-// fanout dead-letter exchange and a dead-letter queue bound to it. Dead-lettered
-// messages are republished to the exchange with the original routing key.
-// Caller must hold c.mu.
 func (c *Client) declareQueueWithDlq(ch *amqp091.Channel, queueName string) error {
 	dlxName := queueName + dlxSuffix
 	dlqName := queueName + dlqSuffix
@@ -189,11 +175,6 @@ func (c *Client) declareQueueWithDlq(ch *amqp091.Channel, queueName string) erro
 	return nil
 }
 
-// declareRetryQueue declares a delay queue: messages sit there for ttl and are
-// then dead-lettered to the default exchange, which routes them back to the
-// main queue by routing key. Retry state therefore lives in the broker, not in
-// the consumer process.
-// Caller must hold c.mu.
 func (c *Client) declareRetryQueue(ch *amqp091.Channel, mainQueue, retryQueue string, ttl time.Duration) error {
 	args := amqp091.Table{
 		"x-message-ttl":             int32(ttl / time.Millisecond),
@@ -287,8 +268,6 @@ func (c *Client) DeclareQueue(queueName string) error {
 	return nil
 }
 
-// SendMessage publishes to queueName with publisher confirms and waits for
-// the broker confirmation before returning. Delivery is persistent.
 func (c *Client) SendMessage(ctx context.Context, queueName string, message []byte) error {
 	if c == nil {
 		return fmt.Errorf("rabbitmq client is nil")
@@ -305,8 +284,6 @@ func (c *Client) SendMessage(ctx context.Context, queueName string, message []by
 	})
 }
 
-// publishConfirmed publishes msg to queueName and waits for the publisher
-// confirmation before returning.
 func (c *Client) publishConfirmed(ctx context.Context, queueName string, msg amqp091.Publishing) error {
 	// Serialize sends so the shared confirmation stream stays ordered per publish.
 	c.sendMu.Lock()
@@ -338,11 +315,6 @@ func (c *Client) publishConfirmed(ctx context.Context, queueName string, msg amq
 	}
 }
 
-// Consume subscribes to queueName, calling handler for each message.
-// It acks on success, rejects (dead-letters) on ErrReject, and on any other
-// handler error routes the message through the tiered retry queues before it is
-// finally dead-lettered. It survives connection loss by re-subscribing
-// automatically. Blocking; returns when ctx is cancelled.
 func (c *Client) Consume(ctx context.Context, queueName string, handler func([]byte) error) error {
 	if c == nil {
 		return fmt.Errorf("rabbitmq client is nil")
@@ -403,8 +375,6 @@ func (c *Client) Consume(ctx context.Context, queueName string, handler func([]b
 	}
 }
 
-// readyChannel returns a live channel, waiting through reconnects until one
-// is available or ctx is cancelled.
 func (c *Client) readyChannel(ctx context.Context) (*amqp091.Channel, error) {
 	for {
 		c.mu.Lock()
@@ -444,10 +414,6 @@ func (c *Client) handleDelivery(ctx context.Context, delivery amqp091.Delivery, 
 	}
 }
 
-// retryOrDeadLetter handles a transient handler failure. The message is
-// published to the next retry queue (publisher confirm) and only then the
-// original is acked, so a retry publish failure never loses the message.
-// Once every retry tier is exhausted the message is dead-lettered to the DLQ.
 func (c *Client) retryOrDeadLetter(ctx context.Context, delivery amqp091.Delivery) {
 	attempt := retryCount(delivery.Headers)
 	if attempt >= len(c.retryDelays) {
@@ -510,7 +476,6 @@ func retryCount(headers amqp091.Table) int {
 	return 0
 }
 
-// retryQueueName names the delay queue for a tier, e.g. "userCreated.retry.30s".
 func retryQueueName(queue string, delay time.Duration) string {
 	return fmt.Sprintf("%s%s.%s", queue, retrySuffix, formatDuration(delay))
 }
