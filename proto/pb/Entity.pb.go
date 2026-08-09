@@ -519,8 +519,8 @@ func (x *Success) GetMessage() string {
 
 type PaginationReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int64                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int64                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -555,14 +555,14 @@ func (*PaginationReq) Descriptor() ([]byte, []int) {
 	return file_Entity_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *PaginationReq) GetLimit() int64 {
+func (x *PaginationReq) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *PaginationReq) GetOffset() int64 {
+func (x *PaginationReq) GetOffset() int32 {
 	if x != nil {
 		return x.Offset
 	}
@@ -612,8 +612,8 @@ const file_Entity_proto_rawDesc = "" +
 	"\aSuccess\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"=\n" +
 	"\rPaginationReq\x12\x14\n" +
-	"\x05limit\x18\x01 \x01(\x03R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x03R\x06offsetB)Z'github.com/koliader/tellmi-sdk/proto/pbb\x06proto3"
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offsetB)Z'github.com/koliader/tellmi-sdk/proto/pbb\x06proto3"
 
 var (
 	file_Entity_proto_rawDescOnce sync.Once

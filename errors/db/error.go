@@ -10,6 +10,8 @@ import (
 const (
 	ForeignKeyViolation = "23503"
 	UniqueViolation     = "23505"
+	RedisDeleteKeyError = "error to delete redis key"
+	RedisSetKeyError    = "error to set redis key"
 )
 
 var ErrRecordNotFound = pgx.ErrNoRows
@@ -19,8 +21,7 @@ var ErrUniqueViolation = &pgconn.PgError{
 }
 
 func ErrorCode(err error) string {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
 		return pgErr.Code
 	}
 	return ""

@@ -10,6 +10,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.13.0
 	github.com/rs/zerolog v1.35.1
 	github.com/spf13/viper v1.21.0
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.70.0
 	go.opentelemetry.io/otel v1.45.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.21.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.45.0

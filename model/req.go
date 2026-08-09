@@ -7,3 +7,8 @@ type IDReq struct {
 type AuthHeaders struct {
 	Token string
 }
+
+type PaginationReq struct {
+	Limit  int64 `uri:"limit"`
+	Offset int64 `uri:"offset"`
+}

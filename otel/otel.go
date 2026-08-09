@@ -17,6 +17,7 @@ import (
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -83,7 +84,7 @@ func (s *SDK) Shutdown(ctx context.Context) error {
 func Init(ctx context.Context, cfg Config) (*SDK, error) {
 	serviceName := firstNonEmpty(cfg.ServiceName, os.Getenv("OTEL_SERVICE_NAME"), defaultServiceName)
 	endpoint := firstNonEmpty(cfg.Endpoint, os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"), defaultOTLPEndpoint)
-	insecure := cfg.Insecure || os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") == ""
+	insecure := cfg.Insecure || os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") == "" || os.Getenv("OTEL_EXPORTER_OTLP_INSECURE") != ""
 
 	res, err := resource.New(ctx,
 		resource.WithTelemetrySDK(),
@@ -153,6 +154,9 @@ func Init(ctx context.Context, cfg Config) (*SDK, error) {
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
+	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
+		log.Error().Err(err).Msg("otel: unrecoverable error")
+	}))
 
 	return &SDK{
 		TracerProvider: tracerProvider,

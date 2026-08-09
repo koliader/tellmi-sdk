@@ -29,12 +29,12 @@ func (c *Client) CreatePost(ctx context.Context, req model.CreatePostReq, header
 	return res, nil, nil
 }
 
-func (c *Client) ListPosts(ctx context.Context) (*pb.ListPostsRes, *codes.Code, error) {
+func (c *Client) ListPosts(ctx context.Context, req model.PaginationReq) (*pb.ListPostsRes, *codes.Code, error) {
 	if err := c.Connect(&ctx); err != nil {
 		return nil, nil, err
 	}
 
-	res, err := postsGrpcServiceClient.ListPosts(ctx, &pb.Empty{})
+	res, err := postsGrpcServiceClient.ListPosts(ctx, &pb.PaginationReq{Limit: int32(req.Limit), Offset: int32(req.Offset)})
 	if err != nil {
 		return nil, errgrpc.GetErrorCode(err), errgrpc.ErrorResponse(err)
 	}
