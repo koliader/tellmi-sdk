@@ -9,6 +9,6 @@ type AuthHeaders struct {
 }
 
 type PaginationReq struct {
-	Limit  int64 `uri:"limit"`
-	Offset int64 `uri:"offset"`
+	Limit  int64 `uri:"limit" form:"limit"`
+	Offset int64 `uri:"offset" form:"offset"`
 }

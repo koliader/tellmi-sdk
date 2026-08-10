@@ -15,6 +15,7 @@ const (
 )
 
 var ErrRecordNotFound = pgx.ErrNoRows
+var ErrCacheMiss = errors.New("cache miss")
 
 var ErrUniqueViolation = &pgconn.PgError{
 	Code: UniqueViolation,
